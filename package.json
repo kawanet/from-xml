@@ -1,0 +1,32 @@
+{
+  "name": "from-xml",
+  "description": "fromXML - JavaScript Object (JSON) from XML",
+  "version": "0.1.0",
+  "author": "Yusuke Kawasaki <u-suke@kawa.net>",
+  "bugs": {
+    "url": "https://github.com/kawanet/from-xml/issues"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "jshint": "^2.9.4",
+    "mocha": "^3.1.2",
+    "uglify-js": "^2.7.3"
+  },
+  "homepage": "https://github.com/kawanet/from-xml#readme",
+  "keywords": [
+    "deserialize",
+    "json",
+    "parse",
+    "xml"
+  ],
+  "license": "MIT",
+  "main": "from-xml.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kawanet/from-xml.git"
+  },
+  "scripts": {
+    "build": "make",
+    "test": "make test"
+  }
+}
