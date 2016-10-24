@@ -3,10 +3,6 @@
 var fromXML;
 
 (function(exports) {
-  var reTag = new RegExp("(<[^\'\"\<\>]*?(?:\\s+(?:[^=\<\>]*?(?:=(?:\'.*?\'|\".*?\"|[^\'\">=<]*))?\\s*)*)?>)");
-  var reSep = new RegExp("[\s\=\"\'\>]");
-  var PROTO = Element.prototype;
-
   var UNESCAPE = {
     "&amp;": "&",
     "&lt;": "<",
@@ -19,71 +15,132 @@ var fromXML;
 
   function _fromXML(src) {
     if ("string" !== typeof src) src += "";
-    var list = src.split(reTag);
-    var last = list.length;
-    var cur = new Element(); // root element
-    var stack = []; // dom tree stack
-    var idx = 0;
-    while (idx < last) {
+    var list = src.split(/<([^'"<>]*?(?:\s+(?:[^=<>]*?(?:=(?:'.*?'|".*?"|[^'"<>]*))?\s*)*)?)>/);
+    var length = list.length;
+
+    // root element
+    var elem = {f: []}; // new Element()
+
+    // dom tree stack
+    var stack = [];
+
+    for (var i = 0; i < length;) {
       // text node
-      var text = list[idx++];
-      if (text) addTextNode(cur, text);
+      var text = list[i++];
+      if (text) addTextNode(elem, text);
 
       // child node
-      var tag = list[idx++];
+      var tag = list[i++];
       if (!tag) continue;
 
-      // close tag
-      if (tag[1] === "/") {
+      var tagLast = tag.length - 1;
+      if (tag[0] === "/") {
+        // close tag
         var parent = stack.pop();
-        parent.fragment.push(toObject(cur));
-        cur = parent;
-        continue;
+        parent.f.push(elem);
+        elem = parent;
+      } else if (tag[tagLast] === "/") {
+        // empty tag
+        var child = openTag(tag.substr(0, tagLast));
+        child.c = 1;
+        elem.f.push(child);
+      } else {
+        // open tag
+        stack.push(elem);
+        elem = openTag(tag);
       }
-
-      // open tag
-      var sp = tag.search(reSep);
-      var name = tag.substr(1, sp - 1);
-      var child = new Element(name);
-      stack.push(cur);
-      cur = child;
     }
 
-    return toObject(cur);
+    return toObject(elem);
   }
 
-  function Element(name) {
-    this.name = name;
-    this.fragment = [];
+  function openTag(tag) {
+    var elem = {f: []};
+    var list = tag.split(/([^\s=]+(?:=(?:'.*?'|".*?"|[^\s'"]*))?)/);
+
+    // tagName
+    elem.n = list[1];
+
+    // attributes
+    var length = list.length;
+    var attributes;
+    for (var i = 2; i < length; i++) {
+      var str = removeSpaces(list[i]);
+      if (!str) continue;
+      var pos = str.indexOf("=");
+      if (!attributes) attributes = elem.a = {};
+      if (pos < 0) {
+        attributes["@" + str] = null;
+      } else {
+        var key = "@" + unescapeRef(str.substr(0, pos));
+        var val = str.substr(pos + 1);
+        if (val.search(/^(".*"|'.*')$/) > -1) {
+          val = val.substr(1, val.length - 2);
+        }
+        attributes[key] = unescapeRef(val);
+      }
+    }
+
+    return elem;
+  }
+
+  function removeSpaces(str) {
+    return str && str.replace(/^[\s\t\r\n]+/, "").replace(/[\s\t\r\n]+$/, "");
   }
 
   function addTextNode(elem, str) {
-    str = str && str.replace(/^[\s\t\r\n]+/, "").replace(/[\s\t\r\n]+$/, "");
-    if (str) elem.fragment.push(entityUnescape(str));
+    str = removeSpaces(str);
+    if (str) elem.f.push(unescapeRef(str));
   }
 
-  function entityUnescape(str) {
+  function unescapeRef(str) {
     return str.replace(/(&(?:lt|gt|amp|apos|quot);)/g, function(str) {
       return UNESCAPE[str];
     });
   }
 
-  function toObject(elem) {
-    var name = elem.name;
-    var fragment = elem.fragment;
-    var child, obj;
+  function isString(str) {
+    return ("string" === typeof str);
+  }
 
-    if (fragment.length < 2) {
-      child = fragment[0];
+  function getChildObject(elem) {
+    var nodeList = elem.f;
+    var attributes = elem.a;
+    var nodeLength = nodeList.length;
+    var stringCount = nodeList.filter(isString).length;
+    var object = attributes || {};
+
+    if (stringCount > 1) {
+      object[""] = nodeList.map(toObject);
+    } else if (nodeLength === 1 && !attributes) {
+      object = toObject(nodeList[0]);
+    } else if (!nodeLength && !attributes) {
+      object = elem.c ? null : "";
     } else {
-      child = {"": fragment};
+      nodeList.forEach(function(child) {
+        if (isString(child)) {
+          object[""] = child;
+        } else {
+          object[child.n] = getChildObject(child);
+        }
+      });
     }
 
-    // root element
-    if (!name) return child;
-
-    obj = {};
-    obj[name] = child;
-    return obj;
+    return object;
   }
+
+  function toObject(elem) {
+    if ("string" === typeof elem) return elem;
+
+    var tagName = elem.n;
+    var childNode = getChildObject(elem);
+
+    // root element
+    if (!tagName) return childNode;
+
+    var object = {};
+    object[tagName] = childNode;
+    return object;
+  }
+
 })(typeof exports === 'object' && exports || {});
