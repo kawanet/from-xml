@@ -15,7 +15,7 @@ var fromXML;
 
   function _fromXML(src) {
     if ("string" !== typeof src) src += "";
-    var list = src.split(/<([^'"<>]*?(?:\s+(?:[^=<>]*?(?:=(?:'.*?'|".*?"|[^'"<>]*))?\s*)*)?)>/);
+    var list = src.split(/<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|.*?)|\?.*?\?)>/);
     var length = list.length;
 
     // root element
@@ -34,16 +34,18 @@ var fromXML;
       if (!tag) continue;
 
       var tagLast = tag.length - 1;
-      if (tag[0] === "/") {
+      var firstChar = tag[0];
+      if (firstChar === "/") {
         // close tag
         var parent = stack.pop();
         parent.f.push(elem);
         elem = parent;
+      } else if (firstChar === "!") {
+        // comment
+        elem.f.push({n: "!", r: tag.substr(1)});
       } else if (tag[tagLast] === "/") {
         // empty tag
-        var child = openTag(tag.substr(0, tagLast));
-        child.c = 1;
-        elem.f.push(child);
+        elem.f.push(openTag(tag.substr(0, tagLast), 1));
       } else {
         // open tag
         stack.push(elem);
@@ -54,8 +56,8 @@ var fromXML;
     return toObject(elem);
   }
 
-  function openTag(tag) {
-    var elem = {f: []};
+  function openTag(tag, closeTag) {
+    var elem = {f: [], c: closeTag};
     var list = tag.split(/([^\s=]+(?:=(?:'.*?'|".*?"|[^\s'"]*))?)/);
 
     // tagName
@@ -104,11 +106,14 @@ var fromXML;
   }
 
   function getChildObject(elem) {
-    var nodeList = elem.f;
+    var raw = elem.r;
+    if (raw) return raw;
+
     var attributes = elem.a;
+    var object = attributes || {};
+    var nodeList = elem.f;
     var nodeLength = nodeList.length;
     var stringCount = nodeList.filter(isString).length;
-    var object = attributes || {};
 
     if (stringCount > 1) {
       object[""] = nodeList.map(toObject);
@@ -118,10 +123,18 @@ var fromXML;
       object = elem.c ? null : "";
     } else {
       nodeList.forEach(function(child) {
-        if (isString(child)) {
-          object[""] = child;
+        var key = "";
+        if (!isString(child)) {
+          key = child.n;
+          child = getChildObject(child);
+        }
+        var prev = object[key];
+        if (prev instanceof Array) {
+          prev.push(child);
+        } else if (key in object) {
+          object[key] = [prev, child];
         } else {
-          object[child.n] = getChildObject(child);
+          object[key] = child;
         }
       });
     }

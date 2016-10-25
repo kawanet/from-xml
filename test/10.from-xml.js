@@ -20,6 +20,10 @@ describe('fromXML', function() {
       {foo: {bar: "BAR"}});
     assert.deepEqual(fromXML('<foo><bar>BAR</bar><baz>BAZ</baz></foo>'),
       {foo: {bar: "BAR", baz: "BAZ"}});
+    assert.deepEqual(fromXML('<foo><bar>BAR</bar><bar>QUX</bar></foo>'),
+      {foo: {bar: ["BAR", "QUX"]}});
+    assert.deepEqual(fromXML('<foo><bar>BAR</bar><baz>BAZ</baz><baz>QUX</baz></foo>'),
+      {foo: {bar: "BAR", baz: ["BAZ", "QUX"]}});
     assert.deepEqual(fromXML('<foo><bar>BAR</bar>FOO</foo>'),
       {foo: {bar: "BAR", "": "FOO"}});
     assert.deepEqual(fromXML('<foo>FOO<bar>BAR</bar>BAZ</foo>'),
@@ -73,6 +77,21 @@ describe('fromXML', function() {
       {foo: {"bar": {"@baz": "BAZ"}}});
     assert.deepEqual(fromXML('<foo><bar baz/></foo>'),
       {foo: {"bar": {"@baz": null}}});
+  });
+
+  it('comment', function() {
+    assert.deepEqual(fromXML('<foo><!bar></foo>'),
+      {foo: {"!": "bar"}});
+    assert.deepEqual(fromXML('<foo><!--bar--></foo>'),
+      {foo: {"!": "--bar--"}});
+    assert.deepEqual(fromXML('<foo><!bar><!baz></foo>'),
+      {foo: {"!": ["bar", "baz"]}});
+    assert.deepEqual(fromXML('<foo><!--bar--><!--baz--></foo>'),
+      {foo: {"!": ["--bar--", "--baz--"]}});
+    assert.deepEqual(fromXML('<foo><!bar><!--baz--></foo>'),
+      {foo: {"!": ["bar", "--baz--"]}});
+    assert.deepEqual(fromXML('<foo><!--L<G>A&Q"--></foo>'),
+      {foo: {"!": '--L<G>A&Q"--'}});
   });
 
   it('escape', function() {
