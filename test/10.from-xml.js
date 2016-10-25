@@ -94,6 +94,19 @@ describe('fromXML', function() {
       {foo: {"!": '--L<G>A&Q"--'}});
   });
 
+  it('xml declaration', function() {
+    assert.deepEqual(fromXML('<?xml version="1.1"?>'),
+      {"?": 'xml version="1.1"'});
+    assert.deepEqual(fromXML(
+      '<?xml version="1.0"?>\n' +
+      '<!DOCTYPE foo SYSTEM "foo.dtd">\n' +
+      '<foo>FOO</foo>\n'), {
+      "?": 'xml version="1.0"',
+      "!": 'DOCTYPE foo SYSTEM "foo.dtd"',
+      "foo": "FOO"
+    });
+  });
+
   it('escape', function() {
     assert.deepEqual(fromXML('L&lt;G&gt;A&amp;Q&quot;'), 'L<G>A&Q"');
     assert.deepEqual(fromXML('<foo>L&lt;G&gt;A&amp;Q&quot;</foo>'), {foo: 'L<G>A&Q"'});

@@ -40,6 +40,9 @@ var fromXML;
         var parent = stack.pop();
         parent.f.push(elem);
         elem = parent;
+      } else if (firstChar === "?") {
+        // XML declaration
+        elem.f.push({n: "?", r: tag.substr(1, tagLast - 1)});
       } else if (firstChar === "!") {
         // comment
         elem.f.push({n: "!", r: tag.substr(1)});
