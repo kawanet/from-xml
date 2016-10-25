@@ -15,7 +15,7 @@ var fromXML;
 
   function _fromXML(src) {
     if ("string" !== typeof src) src += "";
-    var list = src.split(/<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|.*?)|\?.*?\?)>/);
+    var list = src.split(/<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|\[CDATA\[.*?]]|.*?)|\?.*?\?)>/);
     var length = list.length;
 
     // root element
@@ -44,8 +44,13 @@ var fromXML;
         // XML declaration
         elem.f.push({n: "?", r: tag.substr(1, tagLast - 1)});
       } else if (firstChar === "!") {
-        // comment
-        elem.f.push({n: "!", r: tag.substr(1)});
+        if (tag.substr(1, 7) === "[CDATA[" && tag.substr(-2) === "]]") {
+          // CDATA section
+          addTextNode(elem, tag.substr(8, tagLast - 9));
+        } else {
+          // comment
+          elem.f.push({n: "!", r: tag.substr(1)});
+        }
       } else if (tag[tagLast] === "/") {
         // empty tag
         elem.f.push(openTag(tag.substr(0, tagLast), 1));

@@ -107,6 +107,15 @@ describe('fromXML', function() {
     });
   });
 
+  it('cdata', function() {
+    assert.deepEqual(fromXML('<foo><![CDATA[FOO]]></foo>'),
+      {"foo": "FOO"});
+    assert.deepEqual(fromXML('<foo bar="BAR"><![CDATA[FOOBAR]]></foo>'),
+      {"foo": {"@bar": "BAR", "": "FOOBAR"}});
+    assert.deepEqual(fromXML('<foo><![CDATA[L<G>A&Q"]]></foo>'),
+      {"foo": 'L<G>A&Q"'});
+  });
+
   it('escape', function() {
     assert.deepEqual(fromXML('L&lt;G&gt;A&amp;Q&quot;'), 'L<G>A&Q"');
     assert.deepEqual(fromXML('<foo>L&lt;G&gt;A&amp;Q&quot;</foo>'), {foo: 'L<G>A&Q"'});
