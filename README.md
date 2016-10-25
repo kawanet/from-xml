@@ -5,8 +5,8 @@
 ## Features
 
 - Simple: single parser function `fromXML(xml)` returns JavaScript Object.
-- Small: 1.6KB minified. less than 1KB gzipped.
-- Pure JavaScript: no dependency module nor DOM needed.
+- Small: 1.6KB minified, less than 1KB gzipped.
+- Standalone: no dependency module nor DOM needed.
 
 ## Usage
 
@@ -22,10 +22,14 @@ Browser:
 <script src="https://rawgit.com/kawanet/from-xml/master/dist/from-xml.min.js"></script>
 ```
 
+Just call `fromXML()` function:
+
 ```js
 var xml = '<xml foo="FOO"><bar><baz>BAZ</baz></bar></xml>';
 var data = fromXML(xml);
 ```
+
+Result:
 
 ```json
 {
@@ -33,6 +37,102 @@ var data = fromXML(xml);
     "@foo": "FOO",
     "bar": {
       "baz": "BAZ"
+    }
+  }
+}
+```
+
+### Empty Element
+
+XML:
+
+```xml
+<xml>
+  <foo/>
+  <bar></bar>
+  <qux quux="QUUX"/>
+</xml>
+```
+
+JavaScript:
+
+```json
+{
+  "xml": {
+    "foo": null,
+    "bar": "",
+    "qux": {
+      "@quux": "QUUX"
+    }
+  }
+}
+```
+
+### Empty Attribute
+
+XML:
+
+```xml
+<xml>
+  <foo bar="" baz/>
+</xml>
+```
+
+JavaScript:
+
+```json
+{
+  "xml": {
+    "foo": {
+      "@bar": "",
+      "@baz": null
+    }
+  }
+}
+```
+
+### Multiple Child Nodes
+
+XML:
+
+```xml
+<xml>
+  <foo>BAR</foo>
+  <foo>BAZ</foo>
+  <foo>QUX</foo>
+</xml>
+```
+
+JavaScript:
+
+```json
+{
+  "xml": {
+    "foo": ["BAR", "BAZ", "QUX"]
+  }
+}
+```
+
+### Text Node with Attribute
+
+XML:
+
+```xml
+<xml>
+  <foo bar="BAR">
+    BAZ
+  </foo>
+</xml>
+```
+
+JavaScript:
+
+```json
+{
+  "xml": {
+    "foo": {
+      "@bar": "BAR",
+      "": "BAZ"
     }
   }
 }
