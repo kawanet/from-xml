@@ -1,6 +1,6 @@
 {
   "name": "from-xml",
-  "description": "fromXML - JavaScript Object (JSON) from XML",
+  "description": "fromXML - Pure JavaScript XML Parser",
   "version": "0.1.0",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bugs": {
@@ -16,7 +16,7 @@
   "keywords": [
     "deserialize",
     "json",
-    "parse",
+    "parser",
     "xml"
   ],
   "license": "MIT",

@@ -1,12 +1,12 @@
-# fromXML - JavaScript Object (JSON) from XML
+# fromXML - Pure JavaScript XML Parser
 
 [![npm version](https://badge.fury.io/js/from-xml.svg)](http://badge.fury.io/js/from-xml) [![Build Status](https://travis-ci.org/kawanet/from-xml.svg?branch=master)](https://travis-ci.org/kawanet/from-xml)
 
 ## Features
 
 - Simple: single parser function `fromXML(xml)` returns JavaScript Object.
-- Small: XKB minified. less than 1KB gziped.
-- Pure JavaScript: no dependency nor DOM needed.
+- Small: 1.6KB minified. less than 1KB gzipped.
+- Pure JavaScript: no dependency module nor DOM needed.
 
 ## Usage
 
