@@ -27,6 +27,8 @@
   },
   "scripts": {
     "build": "make",
-    "test": "make test"
+    "fixpack": "fixpack",
+    "test": "make test",
+    "test-watch": "while :; do make test; sleep 1; done"
   }
 }
