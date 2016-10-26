@@ -1,4 +1,15 @@
-// from-xml.js
+/**
+ * The fromXML() method parses an XML string, constructing the JavaScript
+ * value or object described by the string. An optional reviver function
+ * can be provided to perform a transformation on the resulting object
+ * before it is returned.
+ *
+ * @function fromXML
+ * @param text {String} The string to parse as XML
+ * @param [reviver] {Function} If a function, prescribes how the value
+ * originally produced by parsing is transformed, before being returned.
+ * @returns {Object}
+ */
 
 var fromXML;
 
@@ -13,27 +24,30 @@ var fromXML;
 
   exports.fromXML = fromXML = _fromXML;
 
-  function _fromXML(src) {
-    if ("string" !== typeof src) src += "";
-    var list = src.split(/<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|\[CDATA\[.*?]]|.*?)|\?.*?\?)>/);
+  function _fromXML(text, reviver) {
+    return parse(text, reviver);
+  }
+
+  function parse(text, reviver) {
+    var list = String.prototype.split.call(text, /<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|\[CDATA\[.*?]]|.*?)|\?.*?\?)>/);
     var length = list.length;
 
     // root element
-    var elem = {f: []}; // new Element()
+    var elem = {f: []};
 
     // dom tree stack
     var stack = [];
 
     for (var i = 0; i < length;) {
       // text node
-      var text = list[i++];
-      if (text) addTextNode(elem, text);
+      var str = list[i++];
+      if (str) addTextNode(elem, str);
 
       // child node
       var tag = list[i++];
       if (!tag) continue;
 
-      var tagLast = tag.length - 1;
+      var tagLength = tag.length;
       var firstChar = tag[0];
       if (firstChar === "/") {
         // close tag
@@ -42,18 +56,18 @@ var fromXML;
         elem = parent;
       } else if (firstChar === "?") {
         // XML declaration
-        elem.f.push({n: "?", r: tag.substr(1, tagLast - 1)});
+        elem.f.push({n: "?", r: tag.substr(1, tagLength - 2)});
       } else if (firstChar === "!") {
         if (tag.substr(1, 7) === "[CDATA[" && tag.substr(-2) === "]]") {
           // CDATA section
-          addTextNode(elem, tag.substr(8, tagLast - 9));
+          addTextNode(elem, tag.substr(8, tagLength - 10));
         } else {
           // comment
           elem.f.push({n: "!", r: tag.substr(1)});
         }
-      } else if (tag[tagLast] === "/") {
+      } else if (tag[tagLength - 1] === "/") {
         // empty tag
-        elem.f.push(openTag(tag.substr(0, tagLast), 1));
+        elem.f.push(openTag(tag.substr(0, tagLength - 1), 1));
       } else {
         // open tag
         stack.push(elem);
