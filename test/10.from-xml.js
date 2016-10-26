@@ -125,6 +125,12 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<foo bar="L&lt;G&gt;A&amp;Q&quot;"></foo>'), {foo: {"@bar": 'L<G>A&Q"'}});
     assert.deepEqual(fromXML("<alpha>'&#x27;&apos;</alpha>"), {alpha: "'''"});
     assert.deepEqual(fromXML("<apos>&#x3b1;</apos>"), {apos: "\u03B1"});
+
+    // tag name should not be unescaped
+    assert.deepEqual(fromXML("<&amp;>&amp;</&amp;>"), {"&amp;": "&"});
+
+    // attribute name should not be unescaped
+    assert.deepEqual(fromXML('<foo &amp;="&amp;"/>'), {"foo": {"@&amp;": "&"}});
   });
 
   it("whitespace", function() {

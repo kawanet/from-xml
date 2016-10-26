@@ -100,7 +100,7 @@ var fromXML;
       if (pos < 0) {
         attributes["@" + str] = null;
       } else {
-        var key = "@" + unescapeXML(str.substr(0, pos));
+        var key = "@" + str.substr(0, pos);
         var val = str.substr(pos + 1);
         if (val.search(/^(".*"|'.*')$/) > -1) {
           val = val.substr(1, val.length - 2);
