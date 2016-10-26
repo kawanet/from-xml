@@ -6,6 +6,7 @@
  * @param text {String} The string to parse as XML
  * @param [reviver] {Function} If a function, prescribes how the value
  * originally produced by parsing is transformed, before being returned.
+ * @param [options] {Object} Options for future usages.
  * @returns {Object}
  */
 
@@ -22,11 +23,11 @@ var fromXML;
 
   exports.fromXML = fromXML = _fromXML;
 
-  function _fromXML(text, reviver) {
-    return parse(text, reviver);
+  function _fromXML(text, reviver, options) {
+    return parse(text, reviver, options);
   }
 
-  function parse(text, reviver) {
+  function parse(text, reviver, options) {
     var list = String.prototype.split.call(text, /<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|\[CDATA\[.*?]]|.*?)|\?.*?\?)>/);
     var length = list.length;
 
@@ -40,7 +41,7 @@ var fromXML;
     for (var i = 0; i < length;) {
       // text node
       var str = list[i++];
-      if (str) addTextNode(elem, str);
+      if (str) appendText(str);
 
       // child node
       var tag = list[i++];
@@ -58,31 +59,40 @@ var fromXML;
         }
       } else if (firstChar === "?") {
         // XML declaration
-        elem.f.push({n: "?", r: tag.substr(1, tagLength - 2)});
+        appendChild({n: "?", r: tag.substr(1, tagLength - 2)});
       } else if (firstChar === "!") {
         if (tag.substr(1, 7) === "[CDATA[" && tag.substr(-2) === "]]") {
           // CDATA section
-          addTextNode(elem, tag.substr(8, tagLength - 10));
+          appendText(tag.substr(8, tagLength - 10));
         } else {
           // comment
-          elem.f.push({n: "!", r: tag.substr(1)});
+          appendChild({n: "!", r: tag.substr(1)});
         }
       } else if (tag[tagLength - 1] === "/") {
         // empty tag
-        elem.f.push(openTag(tag.substr(0, tagLength - 1), 1));
+        appendChild(openTag(tag.substr(0, tagLength - 1), 1, reviver));
       } else {
         // open tag
         stack.push(elem);
-        var child = openTag(tag);
-        elem.f.push(child);
+        var child = openTag(tag, 0, reviver);
+        appendChild(child);
         elem = child;
       }
     }
 
-    return toObject(root);
+    return toObject(root, reviver, options);
+
+    function appendChild(child) {
+      elem.f.push(child);
+    }
+
+    function appendText(str) {
+      str = removeSpaces(str);
+      if (str) appendChild(unescapeXML(str));
+    }
   }
 
-  function openTag(tag, closeTag) {
+  function openTag(tag, closeTag, reviver) {
     var elem = {f: [], c: closeTag};
     var list = tag.split(/([^\s=]+(?:=(?:'.*?'|".*?"|[^\s'"]*))?)/);
 
@@ -98,14 +108,18 @@ var fromXML;
       var pos = str.indexOf("=");
       if (!attributes) attributes = elem.a = {};
       if (pos < 0) {
-        append(attributes, "@" + str, null);
+        addObject(attributes, "@" + str, null);
       } else {
         var key = "@" + str.substr(0, pos);
         var val = str.substr(pos + 1);
         if (val.search(/^(".*"|'.*')$/) > -1) {
           val = val.substr(1, val.length - 2);
         }
-        append(attributes, key, unescapeXML(val));
+        val = unescapeXML(val);
+        if (reviver) {
+          val = reviver(key, val);
+        }
+        addObject(attributes, key, val);
       }
     }
 
@@ -114,11 +128,6 @@ var fromXML;
 
   function removeSpaces(str) {
     return str && str.replace(/^\s+|\s+$/g, "");
-  }
-
-  function addTextNode(elem, str) {
-    str = removeSpaces(str);
-    if (str) elem.f.push(unescapeXML(str));
   }
 
   function unescapeXML(str) {
@@ -135,7 +144,7 @@ var fromXML;
     return ("string" === typeof str);
   }
 
-  function getChildObject(elem) {
+  function getChildObject(elem, reviver, options) {
     var raw = elem.r;
     if (raw) return raw;
 
@@ -146,25 +155,32 @@ var fromXML;
     var stringCount = nodeList.filter(isString).length;
 
     if (stringCount > 1) {
-      object[""] = nodeList.map(toObject);
+      object[""] = nodeList.map(function(child) {
+        return toObject(child, reviver, options);
+      });
     } else if (nodeLength === 1 && !attributes) {
-      object = toObject(nodeList[0]);
+      object = toObject(nodeList[0], reviver, options);
     } else if (!nodeLength && !attributes) {
       object = elem.c ? null : "";
     } else {
       nodeList.forEach(function(child) {
         if (isString(child)) {
-          append(object, "", child);
+          addObject(object, "", child);
         } else {
-          append(object, child.n, getChildObject(child));
+          addObject(object, child.n, getChildObject(child, reviver, options));
         }
       });
+    }
+
+    if (reviver) {
+      object = reviver(elem.n || "", object);
     }
 
     return object;
   }
 
-  function append(object, key, val) {
+  function addObject(object, key, val) {
+    if ("undefined" === typeof val) return;
     var prev = object[key];
     if (prev instanceof Array) {
       prev.push(val);
@@ -175,18 +191,17 @@ var fromXML;
     }
   }
 
-  function toObject(elem) {
+  function toObject(elem, reviver, options) {
     if ("string" === typeof elem) return elem;
 
-    var tagName = elem.n;
-    var childNode = getChildObject(elem);
+    var childNode = getChildObject(elem, reviver, options);
 
     // root element
+    var tagName = elem.n;
     if (!tagName) return childNode;
 
     var object = {};
     object[tagName] = childNode;
     return object;
   }
-
 })(typeof exports === 'object' && exports || {});

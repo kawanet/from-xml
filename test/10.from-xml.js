@@ -2,6 +2,7 @@
 
 /* jshint mocha:true */
 /* jshint browser:true */
+/* globals JSON */
 
 var hasRequire = ('undefined' !== typeof require);
 var Global = ('undefined' !== typeof window) && window || this;
@@ -158,5 +159,72 @@ describe('fromXML', function() {
     // root element is not closed
     assert.deepEqual(fromXML('<xml><foo><bar>BAR</bar>'),
       {xml: {foo: {bar: 'BAR'}}});
+  });
+
+  it.only("reviver", function() {
+    // reviver which may return modified string
+    assert.deepEqual(JSON.parse('{"foo":{"bar":"BAR","baz":"BAZ"}}', bazLower),
+      {"foo": {"bar": "BAR", "baz": "baz"}});
+    assert.deepEqual(fromXML('<foo><bar>BAR</bar><baz>BAZ</baz></foo>', bazLower),
+      {"foo": {"bar": "BAR", "baz": "baz"}});
+    assert.deepEqual(fromXML('<foo><baz>BAZ-1</baz><baz>BAZ-2</baz></foo>', bazLower),
+      {"foo": {"baz": ["baz-1", "baz-2"]}});
+    assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"/>', bazLower),
+      {"foo": {"@bar": "BAR", "@baz": "baz"}});
+    assert.deepEqual(fromXML('<foo baz="BAZ-1" baz="BAZ-2"/>', bazLower),
+      {"foo": {"@baz": ["baz-1", "baz-2"]}});
+
+    function bazLower(key, val) {
+      if (key && key.indexOf("baz") > -1) {
+        return String.prototype.toLowerCase.call(val);
+      }
+      return val;
+    }
+
+    // reviver which may return undefined
+    assert.deepEqual(JSON.parse('{"foo":{"bar":"BAR","baz":"BAZ"}}', barIgnore),
+      {"foo": {"baz": "BAZ"}});
+    assert.deepEqual(fromXML('<foo><bar>BAR</bar><baz>BAZ</baz></foo>', barIgnore),
+      {"foo": {"baz": "BAZ"}});
+    assert.deepEqual(fromXML('<foo><bar>BAR-1</bar><bar>BAR-2</bar><baz>BAZ</baz></foo>', barIgnore),
+      {"foo": {"baz": "BAZ"}});
+    assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"/>', barIgnore),
+      {"foo": {"@baz": "BAZ"}});
+    assert.deepEqual(fromXML('<foo bar="BAR-1" bar="BAR-2" baz="BAZ"/>', barIgnore),
+      {"foo": {"@baz": "BAZ"}});
+
+    function barIgnore(key, val) {
+      if (key && key.indexOf("bar") > -1) return; // undefined
+      return val;
+    }
+
+    // reviver should work after unescaped
+    assert.deepEqual(fromXML('<foo><baz>l&lt;g&gt;a&amp;q&quot;</baz></foo>', bazUpper),
+      {"foo": {"baz": 'L<G>A&Q"'}});
+    assert.deepEqual(fromXML('<foo baz="l&lt;g&gt;a&amp;q&quot;"/>', bazUpper),
+      {"foo": {"@baz": 'L<G>A&Q"'}});
+
+    function bazUpper(key, val) {
+      if (key && key.indexOf("baz") > -1) {
+        return String.prototype.toUpperCase.call(val);
+      }
+      return val;
+    }
+
+    // reviver which decode Date object
+    if (Date.prototype.toJSON) {
+      var dtJSON = (new Date(2016, 9, 26, 21, 28, 0)).toJSON();
+      var date = new Date(dtJSON) - 0; // 1477484880000
+      assert.equal(JSON.parse('{"date":"' + dtJSON + '"}', dateReplacer).date - 0, date);
+      assert.equal(fromXML('<foo><date>' + dtJSON + '</date></foo>', dateReplacer).foo.date - 0, date);
+      assert.equal(fromXML('<foo date="' + dtJSON + '"/>', dateReplacer).foo["@date"] - 0, date);
+    }
+
+    function dateReplacer(key, val) {
+      if (key && key.indexOf("date") > -1) {
+        return new Date(val);
+      }
+      return val;
+    }
   });
 });

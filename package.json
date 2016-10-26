@@ -16,7 +16,8 @@
   "jshintConfig": {
     "es3": true,
     "node": true,
-    "undef": true
+    "undef": true,
+    "unused": true
   },
   "keywords": [
     "deserialize",
