@@ -1,5 +1,8 @@
 // #!/usr/bin/env mocha -R spec
 
+/* jshint mocha:true */
+/* jshint browser:true */
+
 var hasRequire = ('undefined' !== typeof require);
 var Global = ('undefined' !== typeof window) && window || this;
 var fromXML = hasRequire ? require('../').fromXML : Global.fromXML;

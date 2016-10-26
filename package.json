@@ -13,6 +13,11 @@
     "uglify-js": "^2.7.3"
   },
   "homepage": "https://github.com/kawanet/from-xml#readme",
+  "jshintConfig": {
+    "es3": true,
+    "node": true,
+    "undef": true
+  },
   "keywords": [
     "deserialize",
     "json",
