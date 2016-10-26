@@ -230,4 +230,32 @@ describe('fromXML', function() {
       return val;
     }
   });
+
+  it("new line", function() {
+    // new line in tag
+    assert.deepEqual(fromXML('<foo\r\nbar="BAR"><baz>BAZ</baz></foo>'),
+      {"foo": {"@bar": "BAR", "baz": "BAZ"}});
+
+    // new line in attribute
+    assert.deepEqual(fromXML('<foo bar="BAR\r\nBAR"><baz>BAZ</baz></foo>'),
+      {"foo": {"@bar": "BAR\r\nBAR", "baz": "BAZ"}});
+    assert.deepEqual(fromXML("<foo bar='BAR\r\nBAR'><baz>BAZ</baz></foo>"),
+      {"foo": {"@bar": "BAR\r\nBAR", "baz": "BAZ"}});
+
+    // new line in long style comment
+    assert.deepEqual(fromXML('<foo><!--bar\r\nbaz--><!--bar\r\nbaz--></foo>'),
+      {"foo": {"!": ["--bar\r\nbaz--", "--bar\r\nbaz--"]}});
+
+    // new line in short style comment
+    assert.deepEqual(fromXML('<foo><!bar\r\nbaz><!bar\r\nbaz></foo>'),
+      {"foo": {"!": ["bar\r\nbaz", "bar\r\nbaz"]}});
+
+    // new line in CDATA
+    assert.deepEqual(fromXML('<foo><![CDATA[bar\r\nbaz]]><![CDATA[bar\r\nbaz]]></foo>'),
+      {"foo": {"": ["bar\r\nbaz", "bar\r\nbaz"]}});
+
+    // new line in PI
+    assert.deepEqual(fromXML('<?foo bar\r\nbaz?>'),
+      {"?": "foo bar\r\nbaz"});
+  });
 });

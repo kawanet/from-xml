@@ -28,7 +28,7 @@ var fromXML;
   }
 
   function parse(text, reviver, options) {
-    var list = String.prototype.split.call(text, /<([^!<>?](?:'.*?'|".*?"|[^'"<>])*|!(?:--.*?--|\[CDATA\[.*?]]|.*?)|\?.*?\?)>/);
+    var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[CDATA\[[\S\s]*?]]|[\S\s]*?)|\?[\S\s]*?\?)>/);
     var length = list.length;
 
     // root element
@@ -94,7 +94,7 @@ var fromXML;
 
   function openTag(tag, closeTag, reviver) {
     var elem = {f: [], c: closeTag};
-    var list = tag.split(/([^\s=]+(?:=(?:'.*?'|".*?"|[^\s'"]*))?)/);
+    var list = tag.split(/([^\s='"]+(?:=(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
 
     // tagName
     elem.n = list[1];
@@ -111,15 +111,18 @@ var fromXML;
         addObject(attributes, "@" + str, null);
       } else {
         var key = "@" + str.substr(0, pos);
-        var val = str.substr(pos + 1);
-        if (val.search(/^(".*"|'.*')$/) > -1) {
-          val = val.substr(1, val.length - 2);
+        var firstChar = str[pos + 1];
+        var lastChar = str[str.length - 1];
+        if (firstChar === lastChar && (firstChar === "'" || firstChar === '"')) {
+          str = str.substr(pos + 2, str.length - pos - 3);
+        } else {
+          str = str.substr(pos + 1);
         }
-        val = unescapeXML(val);
+        str = unescapeXML(str);
         if (reviver) {
-          val = reviver(key, val);
+          str = reviver(key, str);
         }
-        addObject(attributes, key, val);
+        addObject(attributes, key, str);
       }
     }
 
