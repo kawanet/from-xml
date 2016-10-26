@@ -123,5 +123,13 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('L&lt;G&gt;A&amp;Q&quot;'), 'L<G>A&Q"');
     assert.deepEqual(fromXML('<foo>L&lt;G&gt;A&amp;Q&quot;</foo>'), {foo: 'L<G>A&Q"'});
     assert.deepEqual(fromXML('<foo bar="L&lt;G&gt;A&amp;Q&quot;"></foo>'), {foo: {"@bar": 'L<G>A&Q"'}});
+    assert.deepEqual(fromXML("<alpha>'&#x27;&apos;</alpha>"), {alpha: "'''"});
+    assert.deepEqual(fromXML("<apos>&#x3b1;</apos>"), {apos: "\u03B1"});
+  });
+
+  it("whitespace", function() {
+    assert.deepEqual(fromXML('<xml>&#x20;F O O&#x20;</xml>'), {xml: " F O O "});
+    assert.deepEqual(fromXML('<xml>&#x09;F\tO\tO&#x09;</xml>'), {xml: "\tF\tO\tO\t"});
+    assert.deepEqual(fromXML('<xml>&#x0d;F\nO\rO&#x0a;</xml>'), {xml: "\rF\nO\rO\n"});
   });
 });

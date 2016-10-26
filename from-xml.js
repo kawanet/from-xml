@@ -94,12 +94,12 @@ var fromXML;
       if (pos < 0) {
         attributes["@" + str] = null;
       } else {
-        var key = "@" + unescapeRef(str.substr(0, pos));
+        var key = "@" + unescapeXML(str.substr(0, pos));
         var val = str.substr(pos + 1);
         if (val.search(/^(".*"|'.*')$/) > -1) {
           val = val.substr(1, val.length - 2);
         }
-        attributes[key] = unescapeRef(val);
+        attributes[key] = unescapeXML(val);
       }
     }
 
@@ -107,17 +107,21 @@ var fromXML;
   }
 
   function removeSpaces(str) {
-    return str && str.replace(/^[\s\t\r\n]+/, "").replace(/[\s\t\r\n]+$/, "");
+    return str && str.replace(/^\s+|\s+$/g, "");
   }
 
   function addTextNode(elem, str) {
     str = removeSpaces(str);
-    if (str) elem.f.push(unescapeRef(str));
+    if (str) elem.f.push(unescapeXML(str));
   }
 
-  function unescapeRef(str) {
-    return str.replace(/(&(?:lt|gt|amp|apos|quot);)/g, function(str) {
-      return UNESCAPE[str];
+  function unescapeXML(str) {
+    return str.replace(/(&(?:lt|gt|amp|apos|quot|#x[0-9a-fA-F]+);)/g, function(str) {
+      if (str[1] === "#") {
+        var code = parseInt(str.substr(3), 16);
+        if (code > -1) return String.fromCharCode(code);
+      }
+      return UNESCAPE[str] || str;
     });
   }
 

@@ -6,8 +6,8 @@ Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-
 
 ## Features
 
-- Simple: single parser function `fromXML(xml)` returns JavaScript Object.
-- Small: 1.6KB minified, less than 1KB gzipped.
+- Simple: single parser function `fromXML(xml)` which returns JavaScript Object.
+- Small: 1.7KB minified, less than 1KB gzipped.
 - Standalone: no external module dependency nor DOM needed.
 
 ## Usage
