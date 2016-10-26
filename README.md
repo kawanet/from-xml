@@ -2,15 +2,17 @@
 
 [![npm version](https://badge.fury.io/js/from-xml.svg)](http://badge.fury.io/js/from-xml) [![Build Status](https://travis-ci.org/kawanet/from-xml.svg?branch=master)](https://travis-ci.org/kawanet/from-xml)
 
-Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)
+This library provides `fromXML()` function which parses an XML string and constructs the JavaScript object.
 
-## Features
+**Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)**
+
+## FEATURES
 
 - Simple: single parser function `fromXML(xml)` which returns JavaScript Object.
 - Small: less than 2KB minified, less than 1KB gzipped.
 - Standalone: no external module dependency nor DOM needed.
 
-## Usage
+## SYNOPSIS
 
 Node.js:
 
@@ -24,14 +26,31 @@ Browser:
 <script src="https://rawgit.com/kawanet/from-xml/master/dist/from-xml.min.js"></script>
 ```
 
-Just call `fromXML()` function:
+Run:
 
 ```js
 var xml = '<xml foo="FOO"><bar><baz>BAZ</baz></bar></xml>';
+
 var data = fromXML(xml);
+
+console.warn(data.xml.bar.baz); // => "BAZ"
+
+console.warn(data.xml["@foo"]); // => "FOO"
 ```
 
-Result:
+## EXAMPLES
+
+XML:
+
+```xml
+<xml foo="FOO">
+  <bar>
+    <baz>BAZ</baz>
+  </bar>
+</xml>
+```
+
+JavaScript:
 
 ```json
 {
