@@ -31,7 +31,8 @@ var fromXML;
     var length = list.length;
 
     // root element
-    var elem = {f: []};
+    var root = {f: []};
+    var elem = root;
 
     // dom tree stack
     var stack = [];
@@ -49,9 +50,12 @@ var fromXML;
       var firstChar = tag[0];
       if (firstChar === "/") {
         // close tag
-        var parent = stack.pop();
-        parent.f.push(elem);
-        elem = parent;
+        var closed = tag.replace(/^\/|[\s\/].*$/g, "");
+        while (stack.length) {
+          var match = (elem.n === closed);
+          elem = stack.pop();
+          if (match) break;
+        }
       } else if (firstChar === "?") {
         // XML declaration
         elem.f.push({n: "?", r: tag.substr(1, tagLength - 2)});
@@ -69,11 +73,13 @@ var fromXML;
       } else {
         // open tag
         stack.push(elem);
-        elem = openTag(tag);
+        var child = openTag(tag);
+        elem.f.push(child);
+        elem = child;
       }
     }
 
-    return toObject(elem);
+    return toObject(root);
   }
 
   function openTag(tag, closeTag) {

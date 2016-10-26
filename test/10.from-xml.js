@@ -132,4 +132,18 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<xml>&#x09;F\tO\tO&#x09;</xml>'), {xml: "\tF\tO\tO\t"});
     assert.deepEqual(fromXML('<xml>&#x0d;F\nO\rO&#x0a;</xml>'), {xml: "\rF\nO\rO\n"});
   });
+
+  it("syntax error", function() {
+    // close tag </bar> appears without its open tag <bar>
+    assert.deepEqual(fromXML('<xml><foo>FOO</foo></bar><baz>BAZ</baz></xml>'),
+      {xml: {foo: 'FOO'}, baz: 'BAZ'});
+
+    // open tag <bar> appears without its close tag </bar>
+    assert.deepEqual(fromXML('<xml><foo><bar>BAR</foo><baz>BAZ</baz></xml>'),
+      {xml: {foo: {bar: 'BAR'}, baz: 'BAZ'}});
+
+    // root element is not closed
+    assert.deepEqual(fromXML('<xml><foo><bar>BAR</bar>'),
+      {xml: {foo: {bar: 'BAR'}}});
+  });
 });
