@@ -98,14 +98,14 @@ var fromXML;
       var pos = str.indexOf("=");
       if (!attributes) attributes = elem.a = {};
       if (pos < 0) {
-        attributes["@" + str] = null;
+        append(attributes, "@" + str, null);
       } else {
         var key = "@" + str.substr(0, pos);
         var val = str.substr(pos + 1);
         if (val.search(/^(".*"|'.*')$/) > -1) {
           val = val.substr(1, val.length - 2);
         }
-        attributes[key] = unescapeXML(val);
+        append(attributes, key, unescapeXML(val));
       }
     }
 
@@ -153,23 +153,26 @@ var fromXML;
       object = elem.c ? null : "";
     } else {
       nodeList.forEach(function(child) {
-        var key = "";
-        if (!isString(child)) {
-          key = child.n;
-          child = getChildObject(child);
-        }
-        var prev = object[key];
-        if (prev instanceof Array) {
-          prev.push(child);
-        } else if (key in object) {
-          object[key] = [prev, child];
+        if (isString(child)) {
+          append(object, "", child);
         } else {
-          object[key] = child;
+          append(object, child.n, getChildObject(child));
         }
       });
     }
 
     return object;
+  }
+
+  function append(object, key, val) {
+    var prev = object[key];
+    if (prev instanceof Array) {
+      prev.push(val);
+    } else if (key in object) {
+      object[key] = [prev, val];
+    } else {
+      object[key] = val;
+    }
   }
 
   function toObject(elem) {

@@ -33,7 +33,7 @@ describe('fromXML', function() {
       {foo: {"": ["FOO", {bar: "BAR"}, "BAZ"]}});
   });
 
-  it('attributes', function() {
+  it('attribute', function() {
     assert.deepEqual(fromXML('<foo bar="BAR"></foo>'),
       {foo: {"@bar": "BAR"}});
     assert.deepEqual(fromXML("<foo bar='BAR'></foo>"),
@@ -48,10 +48,17 @@ describe('fromXML', function() {
       {foo: {"@bar": ""}});
     assert.deepEqual(fromXML('<foo bar></foo>'),
       {foo: {"@bar": null}});
+  });
+
+  it('multiple attributes', function() {
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"></foo>'),
       {foo: {"@bar": "BAR", "@baz": "BAZ"}});
     assert.deepEqual(fromXML('<foo bar baz></foo>'),
       {foo: {"@bar": null, "@baz": null}});
+    assert.deepEqual(fromXML('<foo bar="BAR" bar="BAZ"></foo>'),
+      {foo: {"@bar": ["BAR", "BAZ"]}});
+    assert.deepEqual(fromXML('<foo bar bar></foo>'),
+      {foo: {"@bar": [null, null]}});
   });
 
   it('attributes and child elements', function() {
