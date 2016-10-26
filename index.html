@@ -1,0 +1,158 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>from-xml / to-xml Live Demo</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+  <!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.10/es5-shim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+  <![endif]-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <!--
+  <script src="https://rawgit.com/kawanet/from-xml/master/dist/from-xml.min.js"></script>
+  <script src="https://rawgit.com/kawanet/to-xml/master/dist/to-xml.min.js"></script>
+  -->
+  <script src="../../from-xml/from-xml.js"></script>
+  <script src="../../to-xml/to-xml.js"></script>
+  <script>
+    $(function() {
+      var $json = $("#json").on("change", encode).on("keyup", encode);
+      var $xml = $("#xml").on("change", decode).on("keyup", decode);
+      $("#encode").on("click", encode);
+      $("#decode").on("click", decode);
+      var spacer = 4;
+
+      var sample = {
+        "xml": {
+          "foo": "FOO",
+          "nest": {
+            "bar": "BAR",
+            "baz": {
+              "qux": "QUX"
+            }
+          },
+          "list": ["foo", "bar", {"baz": "BAZ"}],
+          "attribute": {
+            "@foo": "FOO",
+            "bar": "BAR"
+          },
+          "attributes": {
+            "@foo": "FOO",
+            "@bar": "BAR",
+            "": "BAZ"
+          },
+          "comment": {
+            "!": "-- foo --"
+          },
+          "comments": {
+            "!": ["-- bar --", "baz"]
+          },
+          "escape": {
+            "@foo": '<&">',
+            "bar": '<&">',
+            "!": '-- <&"> --'
+          },
+          "whitespace": {
+            "space": " ",
+            "tab": "\t",
+            "newline": "\n"
+          },
+          "empty": null
+        }
+      };
+      $json.val(JSON.stringify(sample, null, spacer));
+      encode();
+
+      function encode() {
+        try {
+          var json = $json.val();
+          var data = JSON.parse(json);
+          var xml = toXML(data, null, spacer);
+          $xml.val(xml);
+        } catch (e) {
+          $xml.val(e + "");
+        }
+      }
+
+      function decode() {
+        try {
+          var xml = $xml.val();
+          var data = fromXML(xml);
+          var json = JSON.stringify(data, null, spacer);
+          $json.val(json);
+        } catch (e) {
+          $json.val(e + "");
+        }
+      }
+    });
+  </script>
+  <style>
+    #encode, #decode {
+      margin-top: 100px;
+      margin-top: 25vh;
+    }
+
+    h5 {
+      margin-top: 0;
+    }
+
+    h5 label {
+      margin-left: 10px;
+    }
+
+    #main {
+      height: 100%;
+      margin-top: -120px;
+      padding-top: 120px;
+    }
+
+    #main textarea {
+      height: 100%;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+<form onsubmit="return false;">
+
+  <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+    <div class="container-fluid">
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-left">
+          <li class="active"><a href="./">Live Demo</a></li>
+          <li><a href="https://github.com/kawanet/from-xml">from-xml</a></li>
+          <li><a href="https://github.com/kawanet/to-xml">to-xml</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="main" class="container-fluid">
+    <div class="row">
+      <div class="col-sm-5">
+        <h5 for="json">JSON</h5>
+        <textarea class="form-control" id="json"></textarea>
+      </div>
+      <div class="col-sm-2">
+        <button id="encode" class="convert btn-primary form-control">
+          <span class="glyphicon glyphicon-arrow-right"></span>
+          toXML
+          <span class="glyphicon glyphicon-arrow-right"></span>
+        </button>
+        <button id="decode" class="convert btn-success form-control">
+          <span class="glyphicon glyphicon-arrow-left"></span>
+          fromXML
+          <span class="glyphicon glyphicon-arrow-left"></span>
+        </button>
+      </div>
+      <div class="col-sm-5">
+        <h5 for="xml">XML</h5>
+        <textarea class="form-control" id="xml"></textarea>
+      </div>
+    </div>
+  </div>
+
+</form>
+</body>
+</html>
