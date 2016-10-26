@@ -161,7 +161,7 @@ describe('fromXML', function() {
       {xml: {foo: {bar: 'BAR'}}});
   });
 
-  it.only("reviver", function() {
+  it("reviver", function() {
     // reviver which may return modified string
     assert.deepEqual(JSON.parse('{"foo":{"bar":"BAR","baz":"BAZ"}}', bazLower),
       {"foo": {"bar": "BAR", "baz": "baz"}});

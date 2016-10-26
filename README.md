@@ -169,6 +169,12 @@ JavaScript:
 
 - [https://github.com/kawanet/from-xml](https://github.com/kawanet/from-xml)
 
+### Tests
+
+- [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)
+- [https://travis-ci.org/kawanet/from-xml](https://travis-ci.org/kawanet/from-xml)
+- [https://rawgit.com/kawanet/from-xml/master/test/test.html](https://rawgit.com/kawanet/from-xml/master/test/test.html)
+
 ## LICENSE
 
 The MIT License (MIT)
