@@ -152,17 +152,8 @@ var fromXML;
     var object = attributes || {};
     var nodeList = elem.f;
     var nodeLength = nodeList.length;
-    var stringCount = nodeList.filter(isString).length;
 
-    if (stringCount > 1) {
-      object[""] = nodeList.map(function(child) {
-        return toObject(child, reviver, options);
-      });
-    } else if (nodeLength === 1 && !attributes) {
-      object = toObject(nodeList[0], reviver, options);
-    } else if (!nodeLength && !attributes) {
-      object = elem.c ? null : "";
-    } else {
+    if (attributes || nodeLength > 1) {
       nodeList.forEach(function(child) {
         if (isString(child)) {
           addObject(object, "", child);
@@ -170,6 +161,10 @@ var fromXML;
           addObject(object, child.n, getChildObject(child, reviver, options));
         }
       });
+    } else if (nodeLength) {
+      object = toObject(nodeList[0], reviver, options);
+    } else {
+      object = elem.c ? null : "";
     }
 
     if (reviver) {

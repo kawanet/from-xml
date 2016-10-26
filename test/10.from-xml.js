@@ -30,8 +30,11 @@ describe('fromXML', function() {
       {foo: {bar: "BAR", baz: ["BAZ", "QUX"]}});
     assert.deepEqual(fromXML('<foo><bar>BAR</bar>FOO</foo>'),
       {foo: {bar: "BAR", "": "FOO"}});
+
+    // empty property name only accepts text nodes but not child nodes since version 0.1.1
     assert.deepEqual(fromXML('<foo>FOO<bar>BAR</bar>BAZ</foo>'),
-      {foo: {"": ["FOO", {bar: "BAR"}, "BAZ"]}});
+      {foo: {"": ["FOO", "BAZ"], bar: "BAR"}});
+    // {foo: {"": ["FOO", {bar: "BAR"}, "BAZ"]}});
   });
 
   it('attribute', function() {
