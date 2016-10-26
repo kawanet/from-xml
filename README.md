@@ -2,11 +2,13 @@
 
 [![npm version](https://badge.fury.io/js/from-xml.svg)](http://badge.fury.io/js/from-xml) [![Build Status](https://travis-ci.org/kawanet/from-xml.svg?branch=master)](https://travis-ci.org/kawanet/from-xml)
 
+Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)
+
 ## Features
 
 - Simple: single parser function `fromXML(xml)` returns JavaScript Object.
 - Small: 1.6KB minified, less than 1KB gzipped.
-- Standalone: no dependency module nor DOM needed.
+- Standalone: no external module dependency nor DOM needed.
 
 ## Usage
 

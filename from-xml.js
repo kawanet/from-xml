@@ -1,8 +1,6 @@
 /**
  * The fromXML() method parses an XML string, constructing the JavaScript
- * value or object described by the string. An optional reviver function
- * can be provided to perform a transformation on the resulting object
- * before it is returned.
+ * value or object described by the string.
  *
  * @function fromXML
  * @param text {String} The string to parse as XML

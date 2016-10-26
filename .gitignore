@@ -5,3 +5,4 @@ gh-pages
 .DS_Store
 *.min.js.gz
 npm-debug.log*
+gh-pages
