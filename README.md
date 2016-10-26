@@ -2,13 +2,11 @@
 
 [![npm version](https://badge.fury.io/js/from-xml.svg)](http://badge.fury.io/js/from-xml) [![Build Status](https://travis-ci.org/kawanet/from-xml.svg?branch=master)](https://travis-ci.org/kawanet/from-xml)
 
-This library provides `fromXML()` function which parses an XML string and constructs the JavaScript object.
-
 **Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)**
 
 ## FEATURES
 
-- Simple: single parser function `fromXML(xml)` which returns JavaScript Object.
+- Simple: single XML parser function `fromXML(xml)` which returns JavaScript Object.
 - Small: less than 2KB minified, less than 1KB gzipped.
 - Standalone: no external module dependency nor DOM needed.
 
