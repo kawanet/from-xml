@@ -149,10 +149,6 @@ var fromXML;
     });
   }
 
-  function isString(str) {
-    return ("string" === typeof str);
-  }
-
   function getChildObject(elem, reviver, options) {
     var raw = elem.r;
     if (raw) return raw;
@@ -164,7 +160,7 @@ var fromXML;
 
     if (attributes || nodeLength > 1) {
       nodeList.forEach(function(child) {
-        if (isString(child)) {
+        if ("string" === typeof child) {
           addObject(object, "", child);
         } else {
           addObject(object, child.n, getChildObject(child, reviver, options));
@@ -208,4 +204,4 @@ var fromXML;
     object[tagName] = childNode;
     return object;
   }
-})(typeof exports === 'object' && exports || {});
+})(typeof exports === "object" && exports || {});
