@@ -78,6 +78,17 @@ describe('fromXML', function() {
       {foo: {"@bar": "BAR", "@baz": "BAZ", "qux": "QUX", "quux": "QUUX"}});
   });
 
+  it('space near attribute', function() {
+    assert.deepEqual(fromXML('<foo bar ="BAR" baz qux ="QUX"></foo>'),
+      {foo: {"@bar": "BAR", "@baz": null, "@qux": "QUX"}});
+    assert.deepEqual(fromXML('<foo bar= "BAR" baz qux= "QUX"></foo>'),
+      {foo: {"@bar": "BAR", "@baz": null, "@qux": "QUX"}});
+    assert.deepEqual(fromXML('<foo bar = "BAR" baz qux = "QUX"></foo>'),
+      {foo: {"@bar": "BAR", "@baz": null, "@qux": "QUX"}});
+    assert.deepEqual(fromXML('<foo bar = BAR baz qux = QUX></foo>'),
+      {foo: {"@bar": "BAR", "@baz": null, "@qux": "QUX"}});
+  });
+
   it('empty element', function() {
     assert.deepEqual(fromXML('<foo/>'),
       {foo: null});

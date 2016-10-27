@@ -94,35 +94,41 @@ var fromXML;
 
   function openTag(tag, closeTag, reviver) {
     var elem = {f: [], c: closeTag};
-    var list = tag.split(/([^\s='"]+(?:=(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
+    var list = tag.split(/([^\s='"]+(?:\s*=\s*(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
 
     // tagName
     elem.n = list[1];
 
     // attributes
     var length = list.length;
-    var attributes;
+    var attributes, key, val;
     for (var i = 2; i < length; i++) {
       var str = removeSpaces(list[i]);
       if (!str) continue;
-      var pos = str.indexOf("=");
+
       if (!attributes) attributes = elem.a = {};
+      var pos = str.indexOf("=");
       if (pos < 0) {
-        addObject(attributes, "@" + str, null);
+        // bare attribute
+        val = reviver ? reviver(str, null) : null;
+        addObject(attributes, "@" + str, val);
       } else {
-        var key = "@" + str.substr(0, pos);
-        var firstChar = str[pos + 1];
-        var lastChar = str[str.length - 1];
+        // attribute key/value pair
+        key = str.substr(0, pos).replace(/\s+$/, "");
+        val = str.substr(pos + 1).replace(/^\s+/, "");
+
+        // quote: foo="FOO" bar='BAR'
+        var firstChar = val[0];
+        var lastChar = val[val.length - 1];
         if (firstChar === lastChar && (firstChar === "'" || firstChar === '"')) {
-          str = str.substr(pos + 2, str.length - pos - 3);
-        } else {
-          str = str.substr(pos + 1);
+          val = val.substr(1, val.length - 2);
         }
-        str = unescapeXML(str);
+
+        val = unescapeXML(val);
         if (reviver) {
-          str = reviver(key, str);
+          val = reviver(key, val);
         }
-        addObject(attributes, key, str);
+        addObject(attributes, "@" + key, val);
       }
     }
 
