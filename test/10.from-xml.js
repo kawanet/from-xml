@@ -296,4 +296,9 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<?foo bar\r\nbaz?>'),
       {"?": "foo bar\r\nbaz"});
   });
+
+  it("case insensitive", function() {
+    assert.deepEqual(fromXML('<foo><bar>BAR</BAR><baz>BAZ</BAZ></FOO>'),
+      {"foo": {"bar": "BAR", "baz": "BAZ"}});
+  });
 });

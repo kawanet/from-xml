@@ -57,11 +57,11 @@ var fromXML;
       var firstChar = tag[0];
       if (firstChar === "/") {
         // close tag
-        var closed = tag.replace(/^\/|[\s\/].*$/g, "");
+        var closed = tag.replace(/^\/|[\s\/].*$/g, "").toLowerCase();
         while (stack.length) {
-          var match = (elem.n === closed);
+          var tagName = elem.n && elem.n.toLowerCase();
           elem = stack.pop();
-          if (match) break;
+          if (tagName === closed) break;
         }
       } else if (firstChar === "?") {
         // XML declaration
