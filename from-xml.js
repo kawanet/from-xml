@@ -6,7 +6,6 @@
  * @param text {String} The string to parse as XML
  * @param [reviver] {Function} If a function, prescribes how the value
  * originally produced by parsing is transformed, before being returned.
- * @param [options] {Object} Options for future usages.
  * @returns {Object}
  */
 
@@ -21,13 +20,16 @@ var fromXML;
     "&quot;": '"'
   };
 
+  var ATTRIBUTE_KEY = "@";
+  var CHILD_NODE_KEY = "#";
+
   exports.fromXML = fromXML = _fromXML;
 
-  function _fromXML(text, reviver, options) {
-    return parse(text, reviver, options);
+  function _fromXML(text, reviver) {
+    return toObject(parse(text, reviver), reviver);
   }
 
-  function parse(text, reviver, options) {
+  function parse(text, reviver) {
     var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[CDATA\[[\S\s]*?]]|[\S\s]*?)|\?[\S\s]*?\?)>/);
     var length = list.length;
 
@@ -45,8 +47,12 @@ var fromXML;
 
       // child node
       var tag = list[i++];
-      if (!tag) continue;
+      if (tag) parseNode(tag);
+    }
 
+    return root;
+
+    function parseNode(tag) {
       var tagLength = tag.length;
       var firstChar = tag[0];
       if (firstChar === "/") {
@@ -80,8 +86,6 @@ var fromXML;
       }
     }
 
-    return toObject(root, reviver, options);
-
     function appendChild(child) {
       elem.f.push(child);
     }
@@ -101,21 +105,24 @@ var fromXML;
 
     // attributes
     var length = list.length;
-    var attributes, key, val;
+    var attributes, val;
+
     for (var i = 2; i < length; i++) {
       var str = removeSpaces(list[i]);
       if (!str) continue;
 
-      if (!attributes) attributes = elem.a = {};
+      if (!attributes) {
+        attributes = elem.a = {};
+      }
+
       var pos = str.indexOf("=");
       if (pos < 0) {
         // bare attribute
         val = reviver ? reviver(str, null) : null;
-        addObject(attributes, "@" + str, val);
       } else {
         // attribute key/value pair
-        key = str.substr(0, pos).replace(/\s+$/, "");
         val = str.substr(pos + 1).replace(/^\s+/, "");
+        str = str.substr(0, pos).replace(/\s+$/, "");
 
         // quote: foo="FOO" bar='BAR'
         var firstChar = val[0];
@@ -126,10 +133,10 @@ var fromXML;
 
         val = unescapeXML(val);
         if (reviver) {
-          val = reviver(key, val);
+          val = reviver(str, val);
         }
-        addObject(attributes, "@" + key, val);
       }
+      addObject(attributes, ATTRIBUTE_KEY + str, val);
     }
 
     return elem;
@@ -149,26 +156,30 @@ var fromXML;
     });
   }
 
-  function getChildObject(elem, reviver, options) {
+  function getChildObject(elem, reviver) {
     var raw = elem.r;
     if (raw) return raw;
 
     var attributes = elem.a;
-    var object = attributes || {};
-    var nodeList = elem.f;
-    var nodeLength = nodeList.length;
+    var object;
+    var childList = elem.f;
+    var childLength = childList.length;
 
-    if (attributes || nodeLength > 1) {
-      nodeList.forEach(function(child) {
+    // original mode
+    if (attributes || childLength > 1) {
+      object = attributes || {};
+      childList.forEach(function(child) {
         if ("string" === typeof child) {
-          addObject(object, "", child);
+          addObject(object, CHILD_NODE_KEY, child);
         } else {
-          addObject(object, child.n, getChildObject(child, reviver, options));
+          addObject(object, child.n, getChildObject(child, reviver));
         }
       });
-    } else if (nodeLength) {
-      object = toObject(nodeList[0], reviver, options);
+    } else if (childLength) {
+      // the node has single child node but no attribute
+      object = toObject(childList[0], reviver);
     } else {
+      // the node has no attribute nor child node
       object = elem.c ? null : "";
     }
 
@@ -191,10 +202,10 @@ var fromXML;
     }
   }
 
-  function toObject(elem, reviver, options) {
+  function toObject(elem, reviver) {
     if ("string" === typeof elem) return elem;
 
-    var childNode = getChildObject(elem, reviver, options);
+    var childNode = getChildObject(elem, reviver);
 
     // root element
     var tagName = elem.n;

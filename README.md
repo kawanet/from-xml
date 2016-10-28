@@ -151,7 +151,7 @@ JavaScript:
   "xml": {
     "foo": {
       "@bar": "BAR",
-      "": "BAZ"
+      "#": "BAZ"
     }
   }
 }

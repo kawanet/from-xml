@@ -29,15 +29,16 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<foo><bar>BAR</bar><baz>BAZ</baz><baz>QUX</baz></foo>'),
       {foo: {bar: "BAR", baz: ["BAZ", "QUX"]}});
     assert.deepEqual(fromXML('<foo><bar>BAR</bar>FOO</foo>'),
-      {foo: {bar: "BAR", "": "FOO"}});
+      {foo: {bar: "BAR", "#": "FOO"}});
 
     // empty property name only accepts text nodes but not child nodes since version 0.1.1
     assert.deepEqual(fromXML('<foo>FOO<bar>BAR</bar>BAZ</foo>'),
-      {foo: {"": ["FOO", "BAZ"], bar: "BAR"}});
-    // {foo: {"": ["FOO", {bar: "BAR"}, "BAZ"]}});
+      {foo: {"#": ["FOO", "BAZ"], bar: "BAR"}});
   });
 
   it('attribute', function() {
+    assert.deepEqual(fromXML('<foo bar="BAR"/>'),
+      {foo: {"@bar": "BAR"}});
     assert.deepEqual(fromXML('<foo bar="BAR"></foo>'),
       {foo: {"@bar": "BAR"}});
     assert.deepEqual(fromXML("<foo bar='BAR'></foo>"),
@@ -55,6 +56,8 @@ describe('fromXML', function() {
   });
 
   it('multiple attributes', function() {
+    assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"/>'),
+      {foo: {"@bar": "BAR", "@baz": "BAZ"}});
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"></foo>'),
       {foo: {"@bar": "BAR", "@baz": "BAZ"}});
     assert.deepEqual(fromXML('<foo bar baz></foo>'),
@@ -67,13 +70,13 @@ describe('fromXML', function() {
 
   it('attributes and child elements', function() {
     assert.deepEqual(fromXML('<foo bar="BAR">FOO</foo>'),
-      {foo: {"@bar": "BAR", "": "FOO"}});
+      {foo: {"@bar": "BAR", "#": "FOO"}});
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ">FOO</foo>'),
-      {foo: {"@bar": "BAR", "@baz": "BAZ", "": "FOO"}});
+      {foo: {"@bar": "BAR", "@baz": "BAZ", "#": "FOO"}});
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux></foo>'),
       {foo: {"@bar": "BAR", "@baz": "BAZ", "qux": "QUX"}});
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux>QUUX</foo>'),
-      {foo: {"@bar": "BAR", "@baz": "BAZ", "qux": "QUX", "": "QUUX"}});
+      {foo: {"@bar": "BAR", "@baz": "BAZ", "qux": "QUX", "#": "QUUX"}});
     assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux><quux>QUUX</quux></foo>'),
       {foo: {"@bar": "BAR", "@baz": "BAZ", "qux": "QUX", "quux": "QUUX"}});
   });
@@ -136,7 +139,7 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<foo><![CDATA[FOO]]></foo>'),
       {"foo": "FOO"});
     assert.deepEqual(fromXML('<foo bar="BAR"><![CDATA[FOOBAR]]></foo>'),
-      {"foo": {"@bar": "BAR", "": "FOOBAR"}});
+      {"foo": {"@bar": "BAR", "#": "FOOBAR"}});
     assert.deepEqual(fromXML('<foo><![CDATA[L<G>A&Q"]]></foo>'),
       {"foo": 'L<G>A&Q"'});
   });
@@ -263,7 +266,7 @@ describe('fromXML', function() {
 
     // new line in CDATA
     assert.deepEqual(fromXML('<foo><![CDATA[bar\r\nbaz]]><![CDATA[bar\r\nbaz]]></foo>'),
-      {"foo": {"": ["bar\r\nbaz", "bar\r\nbaz"]}});
+      {"foo": {"#": ["bar\r\nbaz", "bar\r\nbaz"]}});
 
     // new line in PI
     assert.deepEqual(fromXML('<?foo bar\r\nbaz?>'),
