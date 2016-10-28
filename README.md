@@ -157,6 +157,18 @@ JavaScript:
 }
 ```
 
+## CLI
+
+```sh
+$ echo '<foo bar="BAR"><buz>BUZ</buz></foo>' | ./node_modules/.bin/xml2json -2
+{
+  "foo": {
+    "@bar": "BAR",
+    "buz": "BUZ"
+  }
+}
+```
+
 ## SEE ALSO
 
 ### NPM
