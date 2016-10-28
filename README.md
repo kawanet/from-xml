@@ -6,8 +6,8 @@
 
 ## FEATURES
 
-- Simple: single XML parser function `fromXML(xml)` which returns JavaScript Object.
-- Small: less than 2KB minified, less than 1KB gzipped.
+- Simple: single parser function `fromXML(xml)` which returns JavaScript Object.
+- Small: 2KB minified, 1KB gzipped.
 - Standalone: no external module dependency nor DOM needed.
 
 ## SYNOPSIS

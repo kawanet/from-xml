@@ -1,7 +1,7 @@
 {
   "name": "from-xml",
   "description": "fromXML - Pure JavaScript XML Parser",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bugs": {
     "url": "https://github.com/kawanet/from-xml/issues"
