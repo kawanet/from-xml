@@ -26,10 +26,10 @@ var fromXML;
   exports.fromXML = fromXML = _fromXML;
 
   function _fromXML(text, reviver) {
-    return toObject(parse(text, reviver), reviver);
+    return toObject(parseXML(text), reviver);
   }
 
-  function parse(text, reviver) {
+  function parseXML(text) {
     var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[CDATA\[[\S\s]*?]]|[\S\s]*?)|\?[\S\s]*?\?)>/);
     var length = list.length;
 
@@ -74,15 +74,15 @@ var fromXML;
           // comment
           appendChild({n: "!", r: tag.substr(1)});
         }
-      } else if (tag[tagLength - 1] === "/") {
-        // empty tag
-        appendChild(openTag(tag.substr(0, tagLength - 1), 1, reviver));
       } else {
-        // open tag
-        stack.push(elem);
-        var child = openTag(tag, 0, reviver);
+        var child = openTag(tag);
         appendChild(child);
-        elem = child;
+        if (tag[tagLength - 1] === "/") {
+          child.c = 1; // emptyTag
+        } else {
+          stack.push(elem); // openTag
+          elem = child;
+        }
       }
     }
 
@@ -96,33 +96,42 @@ var fromXML;
     }
   }
 
-  function openTag(tag, closeTag, reviver) {
-    var elem = {f: [], c: closeTag};
-    var list = tag.split(/([^\s='"]+(?:\s*=\s*(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
+  function openTag(tag) {
+    var elem = {f: []};
+    tag = tag.replace(/\s*\/?$/, "");
+    var pos = tag.search(/[\s='"\/]/);
+    if (pos < 0) {
+      elem.n = tag;
+    } else {
+      elem.n = tag.substr(0, pos);
+      elem.t = tag.substr(pos);
+    }
+    return elem;
+  }
 
-    // tagName
-    elem.n = list[1];
-
-    // attributes
+  function parseAttribute(elem, reviver) {
+    if (!elem.t) return;
+    var list = elem.t.split(/([^\s='"]+(?:\s*=\s*(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
     var length = list.length;
     var attributes, val;
 
-    for (var i = 2; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       var str = removeSpaces(list[i]);
       if (!str) continue;
 
       if (!attributes) {
-        attributes = elem.a = {};
+        attributes = {};
       }
 
       var pos = str.indexOf("=");
       if (pos < 0) {
         // bare attribute
-        val = reviver ? reviver(str, null) : null;
+        str = ATTRIBUTE_KEY + str;
+        val = null;
       } else {
         // attribute key/value pair
         val = str.substr(pos + 1).replace(/^\s+/, "");
-        str = str.substr(0, pos).replace(/\s+$/, "");
+        str = ATTRIBUTE_KEY + str.substr(0, pos).replace(/\s+$/, "");
 
         // quote: foo="FOO" bar='BAR'
         var firstChar = val[0];
@@ -132,14 +141,14 @@ var fromXML;
         }
 
         val = unescapeXML(val);
-        if (reviver) {
-          val = reviver(str, val);
-        }
       }
-      addObject(attributes, ATTRIBUTE_KEY + str, val);
+      if (reviver) {
+        val = reviver(str, val);
+      }
+      addObject(attributes, str, val);
     }
 
-    return elem;
+    return attributes;
   }
 
   function removeSpaces(str) {
@@ -160,7 +169,7 @@ var fromXML;
     var raw = elem.r;
     if (raw) return raw;
 
-    var attributes = elem.a;
+    var attributes = parseAttribute(elem, reviver);
     var object;
     var childList = elem.f;
     var childLength = childList.length;

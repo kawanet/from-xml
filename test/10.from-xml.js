@@ -245,6 +245,30 @@ describe('fromXML', function() {
     }
   });
 
+  it("reviver order", function() {
+    var order;
+
+    JSON.parse('{"a": "A", "b": {"@c": "C", "d": "D"}}', add.bind(order = []));
+    assert.equal(order.join(","), "a=string,@c=string,d=string,b=object,=object");
+
+    fromXML('<a>A</a><b c="C"><d>D</d></b>', add.bind(order = []));
+    assert.equal(order.join(","), "a=string,@c=string,d=string,b=object,=object");
+
+    JSON.parse('{"a": {"@b": ["B", "B"], "c": ["C", "C"]}}', add.bind(order = []));
+    assert.equal(order.join(","), "0=string,1=string,@b=object,0=string,1=string,c=object,a=object,=object");
+
+    fromXML('<a b="B" b="B"><c>C</c><c>C</c></a>', add.bind(order = []));
+    assert.equal(order.join(","), "@b=string,@b=string,c=string,c=string,a=object,=object");
+
+    fromXML('<a>B<c>C</c>D</a>', add.bind(order = []));
+    assert.equal(order.join(","), "c=string,a=object,=object");
+
+    function add(key, val) {
+      Array.prototype.push.call(this, key + "=" + typeof val);
+      return val;
+    }
+  });
+
   it("new line", function() {
     // new line in tag
     assert.deepEqual(fromXML('<foo\r\nbar="BAR"><baz>BAZ</baz></foo>'),
