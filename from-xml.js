@@ -165,7 +165,9 @@ var fromXML;
     });
   }
 
-  function getChildObject(elem, reviver) {
+  function toObject(elem, reviver) {
+    if ("string" === typeof elem) return elem;
+
     var raw = elem.r;
     if (raw) return raw;
 
@@ -174,19 +176,25 @@ var fromXML;
     var childList = elem.f;
     var childLength = childList.length;
 
-    // original mode
     if (attributes || childLength > 1) {
+      // merge attributes and child nodes
       object = attributes || {};
       childList.forEach(function(child) {
         if ("string" === typeof child) {
           addObject(object, CHILD_NODE_KEY, child);
         } else {
-          addObject(object, child.n, getChildObject(child, reviver));
+          addObject(object, child.n, toObject(child, reviver));
         }
       });
     } else if (childLength) {
       // the node has single child node but no attribute
-      object = toObject(childList[0], reviver);
+      var child = childList[0];
+      object = toObject(child, reviver);
+      if (child.n) {
+        var wrap = {};
+        wrap[child.n] = object;
+        object = wrap;
+      }
     } else {
       // the node has no attribute nor child node
       object = elem.c ? null : "";
@@ -209,19 +217,5 @@ var fromXML;
     } else {
       object[key] = val;
     }
-  }
-
-  function toObject(elem, reviver) {
-    if ("string" === typeof elem) return elem;
-
-    var childNode = getChildObject(elem, reviver);
-
-    // root element
-    var tagName = elem.n;
-    if (!tagName) return childNode;
-
-    var object = {};
-    object[tagName] = childNode;
-    return object;
   }
 })(typeof exports === "object" && exports || {});
