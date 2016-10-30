@@ -144,6 +144,21 @@ describe('fromXML', function() {
       {"foo": 'L<G>A&Q"'});
   });
 
+  it('conditional sections', function() {
+    // https://www.w3.org/TR/2006/REC-xml11-20060816/#sec-condition-sect
+    var xml = "<!ENTITY % draft 'INCLUDE' >\n" +
+      "<![%draft;[\n" +
+      "<!ELEMENT book (comments*, title, body, supplements?)>\n" +
+      "]]>";
+
+    assert.deepEqual(fromXML(xml), {
+      "!": [
+        "ENTITY % draft 'INCLUDE' ",
+        "[%draft;[\n<!ELEMENT book (comments*, title, body, supplements?)>\n]]"
+      ]
+    });
+  });
+
   it('escape', function() {
     assert.deepEqual(fromXML('L&lt;G&gt;A&amp;Q&quot;'), 'L<G>A&Q"');
     assert.deepEqual(fromXML('<foo>L&lt;G&gt;A&amp;Q&quot;</foo>'), {foo: 'L<G>A&Q"'});
