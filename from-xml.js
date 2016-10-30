@@ -156,9 +156,9 @@ var fromXML;
   }
 
   function unescapeXML(str) {
-    return str.replace(/(&(?:lt|gt|amp|apos|quot|#x[0-9a-fA-F]+);)/g, function(str) {
+    return str.replace(/(&(?:lt|gt|amp|apos|quot|#(?:\d{1,6}|x[0-9a-fA-F]{1,5}));)/g, function(str) {
       if (str[1] === "#") {
-        var code = parseInt(str.substr(3), 16);
+        var code = (str[2] === "x") ? parseInt(str.substr(3), 16) : parseInt(str.substr(2), 10);
         if (code > -1) return String.fromCharCode(code);
       }
       return UNESCAPE[str] || str;

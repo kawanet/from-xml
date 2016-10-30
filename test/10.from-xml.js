@@ -191,11 +191,13 @@ describe('fromXML', function() {
   });
 
   it('escape', function() {
+    // 4.1 Character and Entity References
     assert.deepEqual(fromXML('L&lt;G&gt;A&amp;Q&quot;'), 'L<G>A&Q"');
     assert.deepEqual(fromXML('<foo>L&lt;G&gt;A&amp;Q&quot;</foo>'), {foo: 'L<G>A&Q"'});
     assert.deepEqual(fromXML('<foo bar="L&lt;G&gt;A&amp;Q&quot;"></foo>'), {foo: {"@bar": 'L<G>A&Q"'}});
-    assert.deepEqual(fromXML("<alpha>'&#x27;&apos;</alpha>"), {alpha: "'''"});
-    assert.deepEqual(fromXML("<apos>&#x3b1;</apos>"), {apos: "\u03B1"});
+    assert.deepEqual(fromXML("<apos>\x27&#39;&#x27;&apos;</apos>"), {apos: "''''"});
+    assert.deepEqual(fromXML("<alpha>\u03B1&#945;&#x3b1;</alpha>"), {alpha: "\u03B1\u03B1\u03B1"});
+    assert.deepEqual(fromXML("<asia>\u4e9c&#20124;&#x4e9c;</asia>"), {asia: "\u4e9c\u4e9c\u4e9c"});
 
     // tag name should not be unescaped
     assert.deepEqual(fromXML("<&amp;>&amp;</&amp;>"), {"&amp;": "&"});
