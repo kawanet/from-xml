@@ -135,6 +135,37 @@ describe('fromXML', function() {
     });
   });
 
+  it('doctype and entity', function() {
+    // https://www.w3.org/TR/2006/REC-xml11-20060816/REC-xml11-20060816.xml
+
+    var magicents = '<code>amp</code>,\n' +
+      '    <code>lt</code>,\n' +
+      '    <code>gt</code>,\n' +
+      '    <code>apos</code>,\n' +
+      '    <code>quot</code>';
+
+    // Entity Declaration with multi-line Entity Value
+    var entity = '  <!ENTITY magicents "' + magicents + '">\n' +
+      '  <!ENTITY may "<phrase diff=\'chg\'>may</phrase>">\n' +
+      '  <!ENTITY MAY "<rfc2119>MAY</rfc2119>">\n';
+
+    // Document Type Definition with multi-line Internal Subset
+    var xml = '<!DOCTYPE spec SYSTEM "xmlspec.dtd" [ \n' + entity + '\n]>';
+
+    var doctype = xml.substr(2, xml.length - 3);
+    assert.equal(doctype[0], "D");
+    assert.equal(doctype[doctype.length - 1], "]");
+    assert.deepEqual(fromXML(xml), {"!": doctype});
+
+    assert.deepEqual(fromXML(entity), {
+      '!': [
+        'ENTITY magicents "' + magicents + '"',
+        'ENTITY may "<phrase diff=\'chg\'>may</phrase>"',
+        'ENTITY MAY "<rfc2119>MAY</rfc2119>"'
+      ]
+    });
+  });
+
   it('cdata', function() {
     assert.deepEqual(fromXML('<foo><![CDATA[FOO]]></foo>'),
       {"foo": "FOO"});
