@@ -1,7 +1,7 @@
 {
   "name": "from-xml",
   "description": "fromXML - Pure JavaScript XML Parser",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bin": {
     "xml2json": "./bin/xml2json.cli.js"
