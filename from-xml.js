@@ -4,8 +4,10 @@
  *
  * @function fromXML
  * @param text {String} The string to parse as XML
- * @param [reviver] {Function} If a function, prescribes how the value
+ * @param [options.reviver] {Function} If a function, prescribes how the value
  * originally produced by parsing is transformed, before being returned.
+ * @param [options.forceArray] {Boolean} = false If true, all childs will be always array event if contains one node.
+ * @param [options] {Function|Object} If function -> @see param [options.reviver]
  * @returns {Object}
  */
 
@@ -25,8 +27,14 @@ var fromXML;
 
   exports.fromXML = fromXML = _fromXML;
 
-  function _fromXML(text, reviver) {
-    return toObject(parseXML(text), reviver);
+  function _fromXML(text, options) {
+    if(typeof options === 'function' ) {
+      options = { reviver: options };
+    }
+
+    options = Object.assign({}, { forceArray: false }, options);
+
+    return toObject(parseXML(text), options.reviver, options.forceArray);
   }
 
   function parseXML(text) {
@@ -109,7 +117,7 @@ var fromXML;
     return elem;
   }
 
-  function parseAttribute(elem, reviver) {
+  function parseAttribute(elem, reviver, forceArray) {
     if (!elem.t) return;
     var list = elem.t.split(/([^\s='"]+(?:\s*=\s*(?:'[\S\s]*?'|"[\S\s]*?"|[^\s'"]*))?)/);
     var length = list.length;
@@ -145,7 +153,7 @@ var fromXML;
       if (reviver) {
         val = reviver(str, val);
       }
-      addObject(attributes, str, val);
+      addObject(attributes, str, val, forceArray);
     }
 
     return attributes;
@@ -165,13 +173,13 @@ var fromXML;
     });
   }
 
-  function toObject(elem, reviver) {
+  function toObject(elem, reviver, forceArray) {
     if ("string" === typeof elem) return elem;
 
     var raw = elem.r;
     if (raw) return raw;
 
-    var attributes = parseAttribute(elem, reviver);
+    var attributes = parseAttribute(elem, reviver, false);
     var object;
     var childList = elem.f;
     var childLength = childList.length;
@@ -181,18 +189,18 @@ var fromXML;
       object = attributes || {};
       childList.forEach(function(child) {
         if ("string" === typeof child) {
-          addObject(object, CHILD_NODE_KEY, child);
+          addObject(object, CHILD_NODE_KEY, child, forceArray);
         } else {
-          addObject(object, child.n, toObject(child, reviver));
+          addObject(object, child.n, toObject(child, reviver, forceArray), forceArray);
         }
       });
     } else if (childLength) {
       // the node has single child node but no attribute
       var child = childList[0];
-      object = toObject(child, reviver);
+      object = toObject(child, reviver, forceArray);
       if (child.n) {
         var wrap = {};
-        wrap[child.n] = object;
+        wrap[child.n] = forceArray ? [object] : object;
         object = wrap;
       }
     } else {
@@ -207,7 +215,7 @@ var fromXML;
     return object;
   }
 
-  function addObject(object, key, val) {
+  function addObject(object, key, val, forceArray) {
     if ("undefined" === typeof val) return;
     var prev = object[key];
     if (prev instanceof Array) {
@@ -215,7 +223,7 @@ var fromXML;
     } else if (key in object) {
       object[key] = [prev, val];
     } else {
-      object[key] = val;
+      object[key] = forceArray && key !== "#" ? [val] : val;
     }
   }
 })(typeof exports === "object" && exports || {});

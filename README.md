@@ -157,6 +157,43 @@ JavaScript:
 }
 ```
 
+## Force array to provide uniform structer
+
+Useful when have to handle elements with array of items that sometimes have one element inside.
+
+XML:
+
+```xml
+<xml>
+  <foo bar="BAR">
+    BAZ
+  </foo>
+</xml>
+```
+
+Code:
+
+```js
+fromXml(xml, {forceArray:true});
+```
+
+JavaScript:
+
+```json
+{
+  "xml": [
+    {
+      "foo": [
+        {
+          "@bar": "BAR",
+          "#": "BAZ"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## CLI
 
 ```sh
