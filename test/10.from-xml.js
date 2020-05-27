@@ -349,4 +349,34 @@ describe('fromXML', function() {
     assert.deepEqual(fromXML('<foo><bar>BAR</BAR><baz>BAZ</BAZ></FOO>'),
       {"foo": {"bar": "BAR", "baz": "BAZ"}});
   });
+
+  describe('with forceArray flag', function() {
+    it('multiple attributes', function () {
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"/>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ"}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"></foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ"}]});
+      assert.deepEqual(fromXML('<foo bar baz></foo>', {forceArray:true}),
+        {foo: [{"@bar": null, "@baz": null}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" bar="BAZ"></foo>', {forceArray:true}),
+        {foo: [{"@bar": ["BAR", "BAZ"]}]});
+      assert.deepEqual(fromXML('<foo bar bar></foo>', {forceArray:true}),
+        {foo: [{"@bar": [null, null]}]});
+    });
+
+    it('attributes and child elements', function () {
+      assert.deepEqual(fromXML('<foo bar="BAR">FOO</foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "#": "FOO"}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ">FOO</foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ", "#": "FOO"}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux></foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ", "qux": ["QUX"]}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux>QUUX</foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ", "qux": ["QUX"], "#": "QUUX"}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux><quux>QUUX</quux></foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ", "qux": ["QUX"], "quux": ["QUUX"]}]});
+      assert.deepEqual(fromXML('<foo bar="BAR" baz="BAZ"><qux>QUX</qux><qux>QUX2</qux><quux>QUUX</quux></foo>', {forceArray:true}),
+        {foo: [{"@bar": "BAR", "@baz": "BAZ", "qux": ["QUX", "QUX2"], "quux": ["QUUX"]}]});
+    });
+    })
 });
