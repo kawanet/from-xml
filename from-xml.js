@@ -6,8 +6,8 @@
  * @param text {String} The string to parse as XML
  * @param [options.reviver] {Function} If a function, prescribes how the value
  * originally produced by parsing is transformed, before being returned.
- * @param {options.forceArray} {Boolean} = false If true, all childs will be always array event if contains one node.
- * @param {options} {Function|Object} If function -> see @param [options.reviver]
+ * @param [options.forceArray] {Boolean} = false If true, all childs will be always array event if contains one node.
+ * @param [options] {Function|Object} If function -> @see param [options.reviver]
  * @returns {Object}
  */
 
