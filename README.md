@@ -1,6 +1,7 @@
 # fromXML - Pure JavaScript XML Parser
 
-[![npm version](https://badge.fury.io/js/from-xml.svg)](http://badge.fury.io/js/from-xml) [![Build Status](https://travis-ci.org/kawanet/from-xml.svg?branch=master)](https://travis-ci.org/kawanet/from-xml)
+[![Node.js CI](https://github.com/kawanet/from-xml/workflows/Node.js%20CI/badge.svg?branch=main)](https://github.com/kawanet/from-xml/actions/)
+[![npm version](https://badge.fury.io/js/from-xml.svg)](https://www.npmjs.com/package/from-xml)
 
 **Live Demo: [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)**
 
@@ -9,27 +10,28 @@
 - Simple: single parser function `fromXML(xml)` which returns JavaScript Object.
 - Small: 2KB minified, 1KB gzipped.
 - Standalone: no external module dependency nor DOM needed.
+- TypeScript definition: [from-xml.d.ts](https://github.com/kawanet/from-xml/blob/master/from-xml.d.ts)
 
 ## SYNOPSIS
 
 Node.js:
 
 ```js
-var fromXML = require("from-xml").fromXML;
+const fromXML = require("from-xml").fromXML;
 ```
 
 Browser:
 
 ```html
-<script src="https://rawgit.com/kawanet/from-xml/master/dist/from-xml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/from-xml/dist/from-xml.min.js"></script>
 ```
 
 Run:
 
 ```js
-var xml = '<xml foo="FOO"><bar><baz>BAZ</baz></bar></xml>';
+const xml = '<xml foo="FOO"><bar><baz>BAZ</baz></bar></xml>';
 
-var data = fromXML(xml);
+const data = fromXML(xml);
 
 console.warn(data.xml.bar.baz); // => "BAZ"
 
@@ -169,29 +171,18 @@ $ echo '<foo bar="BAR"><buz>BUZ</buz></foo>' | ./node_modules/.bin/xml2json -2
 }
 ```
 
-## SEE ALSO
+## LINKS
 
-### NPM
-
-- [https://www.npmjs.com/package/from-xml](https://www.npmjs.com/package/from-xml) - XML Parser
-- [https://www.npmjs.com/package/to-xml](https://www.npmjs.com/package/to-xml) - XML Writer
-- [https://www.npmjs.com/package/xml-objtree](https://www.npmjs.com/package/xml-objtree)
-
-### GitHub
-
-- [https://github.com/kawanet/from-xml](https://github.com/kawanet/from-xml)
-
-### Tests
-
-- [https://kawanet.github.io/from-xml/](https://kawanet.github.io/from-xml/)
-- [https://travis-ci.org/kawanet/from-xml](https://travis-ci.org/kawanet/from-xml)
-- [https://rawgit.com/kawanet/from-xml/master/test/test.html](https://rawgit.com/kawanet/from-xml/master/test/test.html)
+- https://github.com/kawanet/from-xml
+- https://www.npmjs.com/package/from-xml
+- https://www.npmjs.com/package/to-xml
+- https://www.npmjs.com/package/xml-objtree
 
 ## LICENSE
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Yusuke Kawasaki
+Copyright (c) 2016-2021 Yusuke Kawasaki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
