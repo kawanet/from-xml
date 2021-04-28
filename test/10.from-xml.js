@@ -1,14 +1,11 @@
 // #!/usr/bin/env mocha -R spec
 
 /* jshint mocha:true */
-/* jshint browser:true */
 /* globals JSON */
 
-var hasRequire = ('undefined' !== typeof require);
-var Global = ('undefined' !== typeof window) && window || this;
-var fromXML = hasRequire ? require('../').fromXML : Global.fromXML;
-var chai = hasRequire ? require('chai') : Global.chai;
-var assert = chai && chai.assert;
+if (!chai) var chai = require("chai");
+var assert = chai.assert;
+if (!fromXML) var fromXML = require("../").fromXML;
 
 describe('fromXML', function() {
   it('string', function() {

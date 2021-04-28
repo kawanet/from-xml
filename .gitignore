@@ -1,8 +1,8 @@
-*~
-node_modules
-gh-pages
-.idea
-.DS_Store
 *.min.js.gz
-npm-debug.log*
+*~
+.DS_Store
+.idea
 gh-pages
+node_modules
+npm-debug.log*
+package-lock.json
