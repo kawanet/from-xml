@@ -15,6 +15,15 @@
     "mocha": "^8.3.2",
     "terser": "^5.7.0"
   },
+  "files": [
+    "*.d.ts",
+    "*.js",
+    "LICENSE",
+    "README.md",
+    "bin/*.js",
+    "dist/*.js",
+    "package.json"
+  ],
   "homepage": "https://github.com/kawanet/from-xml#readme",
   "jshintConfig": {
     "es3": true,
@@ -40,5 +49,6 @@
     "fixpack": "fixpack",
     "test": "make test",
     "test-watch": "while :; do make test; sleep 1; done"
-  }
+  },
+  "types": "from-xml.d.ts"
 }
