@@ -21,7 +21,8 @@
     "LICENSE",
     "README.md",
     "bin/*.js",
-    "dist/*.js",
+    "dist/*.min.js",
+    "dist/*.mjs",
     "package.json"
   ],
   "homepage": "https://github.com/kawanet/from-xml#readme",
@@ -39,6 +40,7 @@
   ],
   "license": "MIT",
   "main": "from-xml.js",
+  "module": "dist/from-xml.mjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kawanet/from-xml.git"
@@ -48,7 +50,9 @@
     "clean": "make clean",
     "fixpack": "fixpack",
     "prepack": "make clean all test",
-    "test": "make test"
+    "test": "make test",
+    "test-browser": "make && open test/test.html"
   },
+  "type": "commonjs",
   "types": "from-xml.d.ts"
 }

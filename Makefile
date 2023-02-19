@@ -6,23 +6,30 @@ HINTS=$(SRC) $(TESTS)
 DIST=./dist
 JSDEST=./dist/from-xml.min.js
 JSGZIP=./dist/from-xml.min.js.gz
+ESM=./dist/from-xml.mjs
 
-all: $(JSDEST) $(JSGZIP)
+all: $(ESM) $(JSDEST) $(JSGZIP)
 
 clean:
 	rm -fr $(DIST)
 
-$(DIST):
-	mkdir -p $(DIST)
-
-$(JSDEST): $(SRC) $(DIST)
-	./node_modules/.bin/terser $(SRC) -c -m -o $(JSDEST)
+$(JSDEST): $(SRC)
+	@mkdir -p dist
+	./node_modules/.bin/terser -c -m -o $@ -- $<
 
 $(JSGZIP): $(JSDEST)
-	gzip -9 < $(JSDEST) > $(JSGZIP)
-	ls -l $(JSDEST) $(JSGZIP)
+	gzip -9 < $< > $@
+	ls -l $< $@
 
-test: jshint mocha
+$(ESM): $(SRC)
+	@mkdir -p dist
+	cp -p $< $@
+	perl -i -pe 's#^var (fromXML =)#export const $$1#' $@
+	perl -i -pe 's#typeof exports[^)]+#{}#' $@
+
+test: all jshint mocha
+	node -e 'import("./dist/from-xml.mjs").then(x => console.log(x.fromXML("<ok/>")))'
+	node -e 'console.log(require("./dist/from-xml.min.js").fromXML("<ok/>"))'
 
 mocha:
 	./node_modules/.bin/mocha -R spec $(TESTS)
