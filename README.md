@@ -183,7 +183,7 @@ $ echo '<foo bar="BAR"><buz>BUZ</buz></foo>' | ./node_modules/.bin/xml2json -2
 
 The MIT License (MIT)
 
-Copyright (c) 2016-2021 Yusuke Kawasaki
+Copyright (c) 2016-2023 Yusuke Kawasaki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
