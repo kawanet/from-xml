@@ -9,9 +9,8 @@
  * @returns {Object}
  */
 
-var fromXML;
-
-(function(exports) {
+/* exported fromXML */
+var fromXML = (function(exports) {
   var UNESCAPE = {
     "&amp;": "&",
     "&lt;": "<",
@@ -23,7 +22,7 @@ var fromXML;
   var ATTRIBUTE_KEY = "@";
   var CHILD_NODE_KEY = "#";
 
-  exports.fromXML = fromXML = _fromXML;
+  return (exports.fromXML = _fromXML);
 
   function _fromXML(text, reviver) {
     return toObject(parseXML(text), reviver);
