@@ -1,7 +1,7 @@
 {
   "name": "from-xml",
   "description": "fromXML - Pure JavaScript XML Parser",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bin": {
     "xml2json": "./bin/xml2json.cli.js"
@@ -10,10 +10,10 @@
     "url": "https://github.com/kawanet/from-xml/issues"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "jshint": "^2.12.0",
-    "mocha": "^8.3.2",
-    "terser": "^5.7.0"
+    "chai": "^4.3.7",
+    "jshint": "^2.13.6",
+    "mocha": "^10.2.0",
+    "terser": "^5.16.4"
   },
   "files": [
     "*.d.ts",
