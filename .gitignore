@@ -1,8 +1,8 @@
-*.min.js.gz
 *.tgz
 *~
 .DS_Store
 .idea
+dist/
 gh-pages
 node_modules
 npm-debug.log*

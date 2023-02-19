@@ -47,8 +47,8 @@
     "build": "make",
     "clean": "make clean",
     "fixpack": "fixpack",
-    "test": "make test",
-    "test-watch": "while :; do make test; sleep 1; done"
+    "prepack": "make clean all test",
+    "test": "make test"
   },
   "types": "from-xml.d.ts"
 }
