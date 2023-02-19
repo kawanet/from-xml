@@ -15,10 +15,16 @@
 
 ## SYNOPSIS
 
+ES Module:
+
+```js
+import {fromXML} from "from-xml";
+```
+
 Node.js:
 
 ```js
-const fromXML = require("from-xml").fromXML;
+const {fromXML} = require("from-xml");
 ```
 
 Browser:
