@@ -1,7 +1,7 @@
 #!/usr/bin/env bash -c make
 
 SRC=./from-xml.js
-TESTS=*.json ./test/*.js
+TESTS=./test/*.js
 HINTS=$(SRC) $(TESTS)
 DIST=./dist
 JSDEST=./dist/from-xml.min.js
