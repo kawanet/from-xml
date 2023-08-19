@@ -1,7 +1,7 @@
 {
   "name": "from-xml",
   "description": "fromXML - Pure JavaScript XML Parser",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bin": {
     "xml2json": "./bin/xml2json.cli.js"
@@ -13,7 +13,7 @@
     "chai": "^4.3.7",
     "jshint": "^2.13.6",
     "mocha": "^10.2.0",
-    "terser": "^5.16.4"
+    "terser": "^5.19.2"
   },
   "exports": {
     "require": "./from-xml.js",
