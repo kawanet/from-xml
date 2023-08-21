@@ -16,10 +16,12 @@
     "terser": "^5.19.2"
   },
   "exports": {
-    "require": "./from-xml.js",
-    "import": {
-      "default": "./dist/from-xml.mjs",
-      "types": "./from-xml.d.ts"
+    ".": {
+      "require": "./from-xml.js",
+      "import": {
+        "types": "./from-xml.d.ts",
+        "default": "./dist/from-xml.mjs"
+      }
     }
   },
   "files": [
